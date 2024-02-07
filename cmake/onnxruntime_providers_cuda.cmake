@@ -175,12 +175,25 @@
       endif()
     endif()
 
+    set(CUDNN_FRONTEND_BUILD_SAMPLES OFF)
+    set(CUDNN_FRONTEND_BUILD_UNIT_TESTS OFF)
+    set(CUDNN_FRONTEND_BUILD_PYTHON_BINDINGS OFF)
+    set(CUDNN_PATH ${onnxruntime_CUDNN_HOME})
+    FetchContent_Declare(
+        cudnn_frontend
+#        GIT_REPOSITORY https://github.com/NVIDIA/cudnn-frontend
+#        GIT_TAG v1.0.3
+        GIT_REPOSITORY https://github.com/gedoensmax/cudnn-frontend
+        GIT_TAG 1.0/release
+        )
+    FetchContent_MakeAvailable(cudnn_frontend)
+
     add_dependencies(${target} onnxruntime_providers_shared ${onnxruntime_EXTERNAL_DEPENDENCIES})
     if(onnxruntime_CUDA_MINIMAL)
       target_compile_definitions(${target} PRIVATE USE_CUDA_MINIMAL)
       target_link_libraries(${target} PRIVATE ${ABSEIL_LIBS} ${ONNXRUNTIME_PROVIDERS_SHARED} Boost::mp11 safeint_interface)
     else()
-      target_link_libraries(${target} PRIVATE cublasLt cublas cudnn curand cufft ${ABSEIL_LIBS} ${ONNXRUNTIME_PROVIDERS_SHARED} Boost::mp11 safeint_interface)
+      target_link_libraries(${target} PRIVATE cublasLt cublas cudnn cudnn_frontend curand cufft ${ABSEIL_LIBS} ${ONNXRUNTIME_PROVIDERS_SHARED} Boost::mp11 safeint_interface)
       if(onnxruntime_CUDNN_HOME)
           target_include_directories(${target} PRIVATE ${onnxruntime_CUDNN_HOME}/include)
           target_link_directories(${target} PRIVATE ${onnxruntime_CUDNN_HOME}/lib)
